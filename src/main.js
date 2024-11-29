@@ -1,26 +1,14 @@
+require('./domain/subscribers')
+
 const { app, BrowserWindow, ipcMain } = require('electron/main')
-const { Notification } = require('electron')
 const path = require('node:path')
-const CounterNotifier = require('./CounterNotifier')
+const CounterNotifier = require('./domain/models/CounterNotifier')
+const CounterRepositoryImpl = require('./infrastructure/persistence/CounterRepository')
 
 /**
  * @type {CounterNotifier}
  */
 let counterNotifier
-
-function showNotificationCounter(action) {
-    const titileMap = {
-        increment: 'Incremented',
-        decrement: 'Decremented',
-        reset: 'Reset',
-    }
-
-    const title = titileMap[action] || 'Unknown action'
-
-    const message = `Counter: ${counterNotifier.counter}`
-
-    new Notification({ title, body: message, sound: false }).show()
-}
 
 function createWindow() {
     let win = new BrowserWindow({
@@ -33,13 +21,13 @@ function createWindow() {
 
     win.loadFile('index.html')
 
-    counterNotifier = new CounterNotifier()
+	const counterRepositoryImpl = new CounterRepositoryImpl()
+	const counterValue = counterRepositoryImpl.find()
+    counterNotifier = new CounterNotifier(counterValue)
 
     counterNotifier.on('counter-changed', ({ action, value }) => {
         if (win) {
             win.webContents.send('update-counter', value)
-
-            showNotificationCounter(action)
         }
     })
 
