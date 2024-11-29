@@ -1,0 +1,36 @@
+{
+	"name": "counter-app",
+	"version": "1.0.0",
+	"main": "main.js",
+	"scripts": {
+		"start": "electron .",
+		"build": "electron-builder"
+	},
+	"keywords": [],
+	"author": "Negri234279",
+	"license": "ISC",
+	"description": "Counter app",
+	"dependencies": {
+		"dotenv": "16.4.5",
+		"node-global-key-listener": "0.3.0",
+		"node-notifier": "10.0.1"
+	},
+	"devDependencies": {
+		"electron": "33.2.1",
+		"electron-builder": "25.1.8"
+	},
+	"build": {
+		"appId": "com.negri234279.counterApp",
+		"productName": "Counter App",
+		"directories": {
+			"output": "dist"
+		},
+		"files": [
+			"main.js",
+			"preload.js",
+			"renderer.js",
+			"index.html",
+			"src/**/*"
+		]
+	}
+}
