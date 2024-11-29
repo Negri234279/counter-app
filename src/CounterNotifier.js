@@ -77,10 +77,6 @@ class CounterNotifier extends EventEmitter {
             action: 'increment',
             value: this.counter,
         })
-        this._showNotification(
-            'Counter incremented',
-            `Counter: ${this.counter}`
-        )
 
         return this.counter
     }
@@ -101,10 +97,6 @@ class CounterNotifier extends EventEmitter {
             action: 'decrement',
             value: this.counter,
         })
-        this._showNotification(
-            'Counter decremented',
-            `Counter: ${this.counter}`
-        )
 
         return this.counter
     }
@@ -120,7 +112,6 @@ class CounterNotifier extends EventEmitter {
         console.log('Counter reset.')
 
         this.emit('counter-changed', { action: 'reset', value: this.counter })
-        this._showNotification('Counter reset', `Counter: ${this.counter}`)
 
         return this.counter
     }
@@ -164,19 +155,6 @@ class CounterNotifier extends EventEmitter {
         } catch (error) {
             console.error('Error al guardar el contador:', error)
         }
-    }
-
-    /**
-     * Muestra una notificación nativa
-     * @param {string} title Título de la notificación
-     * @param {string} body Cuerpo del mensaje de la notificación
-     */
-    _showNotification(title, body) {
-        new Notification({
-            title,
-            body,
-            silent: true,
-        }).show()
     }
 }
 
