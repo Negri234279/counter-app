@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require("electron/main")
 const path = require("node:path")
-const CounterNotifier = require("./src/CounterNotifier")
+const CounterNotifier = require("./CounterNotifier")
 
 /**
  * @type {CounterNotifier}

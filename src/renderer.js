@@ -14,8 +14,6 @@ window.api.onCounterUpdate((newCounter) => {
     counterDisplay.textContent = newCounter
 })
 
-
-
 incrementButton.addEventListener("click", async () => {
     const newCounter = await window.api.incrementCounter()
     counterDisplay.textContent = newCounter

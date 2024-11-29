@@ -1,9 +1,9 @@
 {
 	"name": "counter-app",
 	"version": "1.0.0",
-	"main": "main.js",
+	"main": "src/main.js",
 	"scripts": {
-		"start": "electron .",
+		"start": "electron src/main.js",
 		"build": "electron-builder"
 	},
 	"keywords": [],
@@ -26,10 +26,6 @@
 			"output": "dist"
 		},
 		"files": [
-			"main.js",
-			"preload.js",
-			"renderer.js",
-			"index.html",
 			"src/**/*"
 		]
 	}
