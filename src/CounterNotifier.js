@@ -1,15 +1,16 @@
-const { GlobalKeyboardListener } = require("node-global-key-listener")
-const path = require("node:path")
-const fs = require("node:fs")
-const { EventEmitter } = require("events")
+const { GlobalKeyboardListener } = require('node-global-key-listener')
+const { Notification } = require('electron')
+const path = require('node:path')
+const fs = require('node:fs')
+const { EventEmitter } = require('events')
 
-require("dotenv").config()
+require('dotenv').config()
 
 /**
  * Clase que maneja el contador y las notificaciones
  */
 class CounterNotifier extends EventEmitter {
-    static _COUNTER_FILE = path.resolve(__dirname, "counter.json");
+    static _COUNTER_FILE = path.resolve(__dirname, 'counter.json')
 
     /**
      * @type {number}
@@ -21,9 +22,9 @@ class CounterNotifier extends EventEmitter {
 
         this.listener = new listenerModule()
 
-        this.incrementKey = process.env.INCREMENT_KEY || "NUMPAD PLUS"
-        this.decrementKey = process.env.DECREMENT_KEY || "NUMPAD MINUS"
-        this.resetKey = process.env.RESET_KEY || "F1"
+        this.incrementKey = process.env.INCREMENT_KEY || 'NUMPAD PLUS'
+        this.decrementKey = process.env.DECREMENT_KEY || 'NUMPAD MINUS'
+        this.resetKey = process.env.RESET_KEY || 'F1'
 
         this.debounceDelay = 300 // Tiempo de debounce en milisegundos
         this.lastPressed = 0 // Marca de tiempo del último evento
@@ -72,7 +73,14 @@ class CounterNotifier extends EventEmitter {
         this._updateCounter()
         this._showCounter()
 
-        this.emit("counter-changed", this.counter)
+        this.emit('counter-changed', {
+            action: 'increment',
+            value: this.counter,
+        })
+        this._showNotification(
+            'Counter incremented',
+            `Counter: ${this.counter}`
+        )
 
         return this.counter
     }
@@ -89,7 +97,14 @@ class CounterNotifier extends EventEmitter {
         this._updateCounter()
         this._showCounter()
 
-        this.emit("counter-changed", this.counter)
+        this.emit('counter-changed', {
+            action: 'decrement',
+            value: this.counter,
+        })
+        this._showNotification(
+            'Counter decremented',
+            `Counter: ${this.counter}`
+        )
 
         return this.counter
     }
@@ -102,9 +117,10 @@ class CounterNotifier extends EventEmitter {
         this._updateCounter()
 
         console.clear()
-        console.log("Counter reset.")
+        console.log('Counter reset.')
 
-        this.emit("counter-changed", this.counter)
+        this.emit('counter-changed', { action: 'reset', value: this.counter })
+        this._showNotification('Counter reset', `Counter: ${this.counter}`)
 
         return this.counter
     }
@@ -123,10 +139,13 @@ class CounterNotifier extends EventEmitter {
     _loadCounter() {
         if (fs.existsSync(CounterNotifier._COUNTER_FILE)) {
             try {
-                const data = fs.readFileSync(CounterNotifier._COUNTER_FILE, "utf-8")
+                const data = fs.readFileSync(
+                    CounterNotifier._COUNTER_FILE,
+                    'utf-8'
+                )
                 this.counter = JSON.parse(data).counter || 0
             } catch (error) {
-                console.error("Error al leer el archivo del contador:", error)
+                console.error('Error al leer el archivo del contador:', error)
                 this.counter = 0
             }
         }
@@ -140,11 +159,24 @@ class CounterNotifier extends EventEmitter {
             fs.writeFileSync(
                 CounterNotifier._COUNTER_FILE,
                 JSON.stringify({ counter: this.counter }),
-                "utf-8"
+                'utf-8'
             )
         } catch (error) {
-            console.error("Error al guardar el contador:", error)
+            console.error('Error al guardar el contador:', error)
         }
+    }
+
+    /**
+     * Muestra una notificación nativa
+     * @param {string} title Título de la notificación
+     * @param {string} body Cuerpo del mensaje de la notificación
+     */
+    _showNotification(title, body) {
+        new Notification({
+            title,
+            body,
+            silent: true,
+        }).show()
     }
 }
 
