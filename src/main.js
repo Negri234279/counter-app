@@ -4,11 +4,15 @@ const { app, BrowserWindow, ipcMain } = require('electron/main')
 const path = require('node:path')
 const CounterNotifier = require('./domain/models/CounterNotifier')
 const CounterRepositoryImpl = require('./infrastructure/persistence/CounterRepository')
+const UpdateCounterUseCase = require('./application/usecases/UpdateCounterUseCase')
 
 /**
  * @type {CounterNotifier}
  */
 let counterNotifier
+
+const counterRepository = new CounterRepositoryImpl()
+const updateCounterUseCase = new UpdateCounterUseCase(counterRepository)
 
 function createWindow() {
     let win = new BrowserWindow({
@@ -21,15 +25,7 @@ function createWindow() {
 
     win.loadFile('index.html')
 
-	const counterRepositoryImpl = new CounterRepositoryImpl()
-	const counterValue = counterRepositoryImpl.find()
-    counterNotifier = new CounterNotifier(counterValue)
-
-    counterNotifier.on('counter-changed', ({ action, value }) => {
-        if (win) {
-            win.webContents.send('update-counter', value)
-        }
-    })
+	counterNotifier = counterRepository.find()
 
     win.webContents.once('dom-ready', () => {
         win.webContents.send('counter', counterNotifier.counter)
@@ -50,24 +46,13 @@ app.whenReady().then(() => {
     })
 })
 
-ipcMain.handle('counter:increment', () => {
-    const newCounter = counterNotifier.incrementCounter()
-    return newCounter
-})
-
-ipcMain.handle('counter:decrement', () => {
-    const newCounter = counterNotifier.decrementCounter()
-    return newCounter
-})
-
-ipcMain.handle('counter:reset', () => {
-    const newCounter = counterNotifier.resetCounter()
-    return newCounter
-})
-
 ipcMain.handle('counter:get', () => {
     return counterNotifier.counter
 })
+
+ipcMain.handle('counter:action', (_, action) =>
+    updateCounterUseCase.execute(action),
+)
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {

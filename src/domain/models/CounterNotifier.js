@@ -17,7 +17,7 @@ class CounterNotifier extends EventEmitter {
     counter
 
     /**
-     * @param {number} counter 
+     * @param {number} counter
      */
     constructor(counter) {
         super()
@@ -70,56 +70,47 @@ class CounterNotifier extends EventEmitter {
 
     /**
      * Incrementa el contador y muestra una notificación
+     * @returns {CounterNotifier}
      */
     incrementCounter() {
         this.counter++
 
-        this.emit('counter-changed', {
-            action: 'increment',
-            value: this.counter,
-        })
-
         this._emitEvent('increment')
 
-        return this.counter
+        return new CounterNotifier(this.counter)
     }
 
     /**
      * Decrementa el contador y muestra una notificación
+     * @returns {CounterNotifier}
      */
     decrementCounter() {
         if (this.counter <= 0) {
-            return this.counter
+            return new CounterNotifier(this.counter)
         }
 
         this.counter--
 
-        this.emit('counter-changed', {
-            action: 'decrement',
-            value: this.counter,
-        })
-
         this._emitEvent('decrement')
 
-        return this.counter
+        return new CounterNotifier(this.counter)
     }
 
     /**
      * Reinicia el contador a 0 y muestra una notificación
+     * @returns {CounterNotifier}
      */
     resetCounter() {
         this.counter = 0
 
-        this.emit('counter-changed', { action: 'reset', value: this.counter })
-
         this._emitEvent('reset')
 
-        return this.counter
+        return new CounterNotifier(this.counter)
     }
 
     /**
      * Emite un evento de contador cambiado
-     * @param {string} action Acción que se realizó
+     * @param {'increment' | 'decrement' | 'reset'} action Acción que se realizó
      */
     _emitEvent(action) {
         const event = new CounterChangedEvent(action, this.counter)
